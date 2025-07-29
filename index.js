@@ -65,6 +65,7 @@ app.all('/player/growid/checktoken', (req, res) => {
 app.get('/', function (req, res) {
    res.send('Hello Memek');
 });
+app.use('/public/cache', express.static(path.join(__dirname, 'public', 'cache')));
 
 app.get('/public/cache/:filename', (req, res) => {
   const filename = req.params.filename;
