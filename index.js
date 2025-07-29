@@ -70,16 +70,36 @@ app.get('/public/cache/:filename', (req, res) => {
   const filename = req.params.filename;
   const filePath = path.join(__dirname, 'public', 'cache', filename);
 
-  if (!fs.existsSync(filePath)) {
-    return res.status(404).json({ error: 'File not found' });
-  }
-
-  res.setHeader('Content-Type', 'application/octet-stream'); // Generic binary type
-  res.download(filePath, filename, (err) => {
-    if (err) {
-      res.status(500).json({ error: 'Error downloading file' });
+  try {
+    if (!fs.existsSync(filePath)) {
+      return res.status(404).json({ error: 'File not found' });
     }
-  });
+
+    // Set appropriate headers for download
+    res.setHeader('Content-Disposition', `attachment; filename=${filename}`);
+    res.setHeader('Content-Type', 'application/octet-stream'); // Adjust for .rttex if known
+
+    // Stream the file to handle large files
+    const fileStream = fs.createReadStream(filePath);
+    fileStream.pipe(res);
+
+    fileStream.on('error', (err) => {
+      res.status(500).json({ error: 'Error streaming file' });
+    });
+  } catch (err) {
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Catch-all for 404 errors
+app.use((req, res) => {
+  res.status(404).send('Cannot GET ' + req.url);
+});
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ error: 'Internal server error' });
 });
 
 app.listen(5000, function () {
