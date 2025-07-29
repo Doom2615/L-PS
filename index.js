@@ -66,6 +66,30 @@ app.get('/', function (req, res) {
    res.send('Hello Memek');
 });
 
+app.get('public/cache/', (req, res) => {
+  const filename = req.params.filename;
+  
+  // Validate file extension (e.g., only allow .pdf, .jpg, .png)
+  //if (!filename.match(/\.(pdf|jpg|png)$/)) {
+    //return res.status(400).json({ error: 'Invalid file type' });
+  //}
+
+  // Construct file path
+  const filePath = path.join(__dirname, 'public', 'cache', filename);
+
+  // Check if file exists
+  if (!fs.existsSync(filePath)) {
+    return res.status(404).json({ error: 'File not found' });
+  }
+
+  // Send file for download
+  res.download(filePath, filename, (err) => {
+    if (err) {
+      res.status(500).json({ error: 'Error downloading file' });
+    }
+  });
+});
+
 app.listen(5000, function () {
     console.log('Listening on port 5000');
 });
