@@ -66,7 +66,7 @@ app.get('/', function (req, res) {
    res.send('Hello Memek');
 });
 
-app.get('public/cache/', (req, res) => {
+app.get('/download/:filename', (req, res) => {
   const filename = req.params.filename;
   
   // Validate file extension (e.g., only allow .pdf, .jpg, .png)
